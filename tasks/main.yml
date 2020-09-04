@@ -1,0 +1,53 @@
+---
+# tasks file for ansible-role-registry-container
+
+- name: Ensure required packages are installed
+  become: true
+  package:
+    name: "{{ registry_packages }}"
+    state: latest
+  register: registry_pkgs
+
+- name: Ensure directories exist
+  become: true
+  file:
+    state: directory
+    path: "{{ dir }}"
+    mode: '0750'
+    owner: 'root'
+    setype: container_file_t
+  register: registry_dirs
+  loop_control:
+    loop_var: dir
+  loop:
+    - "{{ registry_path }}"
+    - "{{ registry_auth_dir }}"
+    - "{{ registry_cert_dir }}"
+    - "{{ registry_data_dir }}"
+
+- name: Handle TLS
+  include_tasks: ssl.yml
+  when:
+    - registry_enable_ssl|bool
+
+- name: Configure Basic Auth
+  become: true
+  htpasswd:
+    path: "{{ registry_auth_dir}}/{{ registry_auth_filename }}"
+    name: "{{ registry_auth_username }}"
+    password: "{{ registry_auth_password }}"
+    owner: root
+    mode: '0640'
+  register: registry_auth_htpasswd
+  when:
+    - registry_enable_auth|bool
+
+
+- name: Manage Container
+  include_tasks: container.yml
+# TODO(mwhahaha): fix this
+#  when:
+#    - (regsitry_pkgs is changed
+#        or registry_dirs is changed
+#        or (registry_ssl_cert is defined and registry_ssl_cert is changed)
+#        or registry_auth_htpasswd is changed)

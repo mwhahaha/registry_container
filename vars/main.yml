@@ -1,0 +1,5 @@
+---
+# vars file for ansible-role-registry-container
+registry_packages:
+  - podman
+  - httpd-tools

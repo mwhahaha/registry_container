@@ -1,0 +1,19 @@
+---
+- name: Generate a Certificate Signing Request
+  become: true
+  openssl_csr:
+    path: "{{ registry_cert_dir }}/{{ registry_cert_csr_filename }}"
+    privatekey_path: "{{ registry_cert_dir }}/{{ registry_cert_key_filename }}"
+    common_name: "{{ registry_hostname }}"
+
+- name: Generate a Self Signed Certificate
+  become: true
+  openssl_certificate:
+    csr_path: "{{ registry_cert_dir }}/{{ registry_cert_csr_filename }}"
+    path: "{{ registry_cert_dir }}/{{ registry_cert_csr_filename }}"
+    privatekey_path: "{{ registry_cert_dir }}/{{ registry_cert_key_filename }}"
+    provider: selfsigned
+  register: registry_ssl_cert
+  when:
+    - not ansible_check_mode
+

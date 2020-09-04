@@ -1,0 +1,92 @@
+---
+- name: Stat Registry Service
+  stat:
+    path: "{{ registry_systemd_service_file }}"
+  register: registry_service_stat
+
+- name: Stat Container
+  become: true
+  command: >-
+    {{ registry_container_engine }} ps -a --format {% raw %}"{{.Names}}"{% endraw %} --filter "name={{ registry_container_name }}"
+  register: registry_container_stat
+
+- name: Stop service
+  become: true
+  systemd:
+    state: stopped
+    name: "{{ registry_systemd_service_name }}"
+  when:
+    - registry_manage_service|bool
+    - registry_service_stat.stat.exists
+
+- name: Remove container
+  become: true
+  shell: |
+    {{ registry_container_engine }} stop {{ registry_container_name }} && \
+    {{ registry_container_engine }} rm {{ registry_container_name }}
+  when:
+    - not ansible_check_mode
+    - registry_container_name in registry_container_stat.stdout
+
+- name: Create Container
+  block:
+    - name: Build Container Command
+      set_fact:
+        registry_container_create_cmd: |
+          {{ registry_container_engine }} create \
+             --detach \
+             --name {{ registry_container_name }} \
+             --publish {{ registry_listen }}:{{ registry_port }}:5000 \
+             --restart=always \
+             -v {{ registry_data_dir }}:/var/lib/registry:z \
+             {% if registry_enable_auth -%}
+             -v {{ registry_auth_dir }}:/auth:ro \
+             -e "REGISTRY_AUTH=htpasswd" \
+             -e "REGISTRY_AUTH_HTPASSWD_REALM={{ registry_auth_realm }}" \
+             -e "REGISTRY_AUTH_HTPASSWD_PATH=/auth/{{ registry_auth_filename }}" \
+             {% endif -%}
+             {%- if registry_enable_ssl %}
+             -v {{ registry_cert_dir }}:/certs:ro \
+             -e "REGISTRY_HTTP_TLS_CERTIFICATE=/certs/{{ registry_cert_filename }}" \
+             -e "REGISTRY_HTTP_TLS_KEY=/certs/{{ registry_cert_key_filename }}" \
+             {% endif -%}
+             {{ registry_container_image }}
+
+    - name: Print Command
+      debug:
+        var: registry_container_create_cmd
+
+    - name: Run command
+      become: true
+      shell: "{{ registry_container_create_cmd }}"
+      when:
+        - not ansible_check_mode
+
+- name: Manage Systemd
+  become: true
+  when:
+    - registry_manage_service
+  block:
+    - name: Generate systemd file
+      shell: >-
+        {{ registry_container_engine }} generate systemd --name {{ registry_container_name }}
+      register: registry_systemd_service_data
+      when:
+        - not ansible_check_mode
+
+    - name: Save systemd file
+      copy:
+        content: "{{ registry_systemd_service_data.stdout }}"
+        dest: "{{ registry_systemd_service_file }}"
+        owner: root
+        mode: '0644'
+      when:
+        - registry_systemd_service_data is defined
+        - registry_systemd_service_data.stdout is defined
+
+    - name: Reload systemd
+      systemd:
+        name: "{{ registry_systemd_service_name }}"
+        daemon_reload: true
+        enabled: yes
+        state: restarted

@@ -1,0 +1,33 @@
+---
+# defaults file for ansible-role-registry-container
+
+registry_enable_ssl: True
+registry_enable_auth: True
+registry_manage_service: True
+
+registry_container_engine: podman
+registry_container_name: container-registry
+registry_container_image: docker.io/library/registry:2
+
+registry_path: /opt/registry
+
+registry_auth_dir: "{{ registry_path }}/auth"
+registry_auth_filename: "{{ registry_auth_dir }}/htpasswd"
+registry_auth_password: foobar
+registry_auth_realm: Registry Realm
+registry_auth_username: admin
+
+registry_cert_dir: "{{ registry_path }}/certs"
+registry_cert_filename: "domain.crt"
+registry_cert_csr_filename: "domain.csr"
+registry_cert_key_filename: "domain.key"
+
+registry_data_dir: "{{ registry_path }}/images"
+
+registry_hostname: "{{ ansible_hostname }}"
+
+registry_listen_address: 0.0.0.0
+registry_port: 9999
+
+registry_systemd_service_name: "{{ registry_container_name }}-container"
+registry_systemd_service_file: "/etc/systemd/system/{{ registry_systemd_service_name }}.service"
