@@ -36,7 +36,7 @@
           {{ registry_container_engine }} create \
              --detach \
              --name {{ registry_container_name }} \
-             --publish {{ registry_listen }}:{{ registry_port }}:5000 \
+             --publish {{ registry_listen_address }}:{{ registry_port }}:5000 \
              --restart=always \
              -v {{ registry_data_dir }}:/var/lib/registry:z \
              {% if registry_enable_auth -%}
