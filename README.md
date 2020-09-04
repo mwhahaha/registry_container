@@ -38,8 +38,6 @@ Role Variables
   Default: "{{ registry_path }}/images"
 - `registry_hostname` - Hostname to use when generating a certificate file.
   Default: "{{ ansible_hostname }}"
-- `registry_listen_address` - IP to expose the port on via publish.
-  Default: 0.0.0.0
 - `registry_port` - Port to expose via publish. Default: 9999
 - `registry_systemd_service_name` - name of the systemd service that is created.
   Default: "{{ registry_container_name }}-container"

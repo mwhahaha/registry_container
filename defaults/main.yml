@@ -26,7 +26,6 @@ registry_data_dir: "{{ registry_path }}/images"
 
 registry_hostname: "{{ ansible_hostname }}"
 
-registry_listen_address: 0.0.0.0
 registry_port: 9999
 
 registry_systemd_service_name: "{{ registry_container_name }}-container"
