@@ -55,6 +55,8 @@
     - name: Print Command
       debug:
         var: registry_container_create_cmd
+      when:
+        - ansible_check_mode
 
     - name: Run command
       become: true
