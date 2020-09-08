@@ -5,7 +5,7 @@
   become: true
   package:
     name: "{{ registry_packages }}"
-    state: latest
+    state: present
   register: registry_pkgs
 
 - name: Ensure directories exist
@@ -33,7 +33,7 @@
 - name: Configure Basic Auth
   become: true
   htpasswd:
-    path: "{{ registry_auth_dir}}/{{ registry_auth_filename }}"
+    path: "{{ registry_auth_dir }}/{{ registry_auth_filename }}"
     name: "{{ registry_auth_username }}"
     password: "{{ registry_auth_password }}"
     owner: root
@@ -41,7 +41,6 @@
   register: registry_auth_htpasswd
   when:
     - registry_enable_auth|bool
-
 
 - name: Manage Container
   include_tasks: container.yml
