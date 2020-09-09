@@ -1,4 +1,9 @@
 ---
+- name: Generate a SSL Private Key
+  become: true
+  openssl_privatekey:
+    path: "{{ registry_cert_dir }}/{{ registry_cert_key_filename }}"
+
 - name: Generate a Certificate Signing Request
   become: true
   openssl_csr:

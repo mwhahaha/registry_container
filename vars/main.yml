@@ -3,3 +3,4 @@
 registry_packages:
   - podman
   - httpd-tools
+  - python3-pyOpenSSL
