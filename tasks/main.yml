@@ -36,6 +36,7 @@
     path: "{{ registry_auth_dir }}/{{ registry_auth_filename }}"
     name: "{{ registry_auth_username }}"
     password: "{{ registry_auth_password }}"
+    crypt_scheme: bcrypt
     owner: root
     mode: '0640'
   register: registry_auth_htpasswd

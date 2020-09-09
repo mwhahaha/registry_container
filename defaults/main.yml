@@ -12,7 +12,7 @@ registry_container_image: docker.io/library/registry:2
 registry_path: /opt/registry
 
 registry_auth_dir: "{{ registry_path }}/auth"
-registry_auth_filename: "{{ registry_auth_dir }}/htpasswd"
+registry_auth_filename: "htpasswd"
 registry_auth_password: foobar
 registry_auth_realm: Registry Realm
 registry_auth_username: admin

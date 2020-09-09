@@ -15,7 +15,7 @@
   become: true
   openssl_certificate:
     csr_path: "{{ registry_cert_dir }}/{{ registry_cert_csr_filename }}"
-    path: "{{ registry_cert_dir }}/{{ registry_cert_csr_filename }}"
+    path: "{{ registry_cert_dir }}/{{ registry_cert_filename }}"
     privatekey_path: "{{ registry_cert_dir }}/{{ registry_cert_key_filename }}"
     provider: selfsigned
   register: registry_ssl_cert
